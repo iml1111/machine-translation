@@ -364,7 +364,7 @@ optional arguments:
 
 실습으로 사용된 Dataset은 AI-HUB에서 지원하는[한국어-영어 번역 말뭉치 AI 데이터](https://aihub.or.kr/aidata/87) 입니다. 총 약 160만 개 정도의 한국어-영어 Fair Set을 지원하며, 누구나 무료로 사용할 수 있습니다.
 
-학습을 수행하기 위해서는 해당 데이터에 대한 전처리 과정이 필요합니다. 전처리 과정에 대한 내용은 [여기](https://github.com/iml1111/machine-translation/blob/main/src/data/README.md)를 참고해주세요.
+학습을 수행하기 위해서는 해당 데이터에 대한 전처리 과정이 필요합니다. 전처리 과정에 대한 내용은 [여기](https://github.com/iml1111/machine-translation/blob/main/src/data_preparation/README.md)를 참고해주세요.
 
 | set   | lang | #lines    | #tokens    | #characters |
 | ----- | ---- | --------- | ---------- | ----------- |
