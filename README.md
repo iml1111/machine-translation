@@ -18,7 +18,7 @@
 
 # Sequence to Sequence
 
-![img](https://kh-kim.gitbooks.io/pytorch-natural-language-understanding/content/assets/seq2seq_with_attention_architecture.png)
+![image](https://user-images.githubusercontent.com/29897277/105708505-eb55e300-5f57-11eb-8439-e53d3065ae0b.png)
 
 LSTM 및 Attention을 기반으로 한, **Seq2Seq Model**입니다.
 
@@ -140,7 +140,7 @@ optional arguments:
 
 # Transformer
 
-![Transformer (Attention Is All You Need) 구현하기 (3/3)](https://paul-hyun.github.io/assets/2019-12-19/transformer-model-architecture.png)
+![image](https://user-images.githubusercontent.com/29897277/105708447-d8dba980-5f57-11eb-9512-1dc53053e9a4.png)
 
  Pre-LN 기반으로 작성된 **Transformer Model**입니다.
 
@@ -358,6 +358,8 @@ optional arguments:
 
 # Evaluation
 
+
+
 ### Used Dataset
 
 실습으로 사용된 Dataset은 AI-HUB에서 지원하는[한국어-영어 번역 말뭉치 AI 데이터](https://aihub.or.kr/aidata/87) 입니다. 총 약 160만 개 정도의 한국어-영어 Fair Set을 지원하며, 누구나 무료로 사용할 수 있습니다.
@@ -373,6 +375,8 @@ optional arguments:
 | test  | en   | 202,409   | 7,348,536  | 60,516,183  |
 |       | ko   | 202,409   | 6,420,128  | 56,697,502  |
 
+
+
 ### Test Hyperparameter
 
 | parameter                    | seq2seq | transformer |
@@ -383,6 +387,17 @@ optional arguments:
 | n_layers                     | 4       | 4           |
 | n_splits (transformer heads) | -       | 8           |
 | n_epochs                     | 30      | 30          |
+
+
+
+### Loss visualization
+
+|              Model               | train loss | valid loss | vaild ppl |
+| :------------------------------: | :--------: | ---------- | --------- |
+| Sequence-to-Sequence (30 epochs) |    1.27    | 1.49       | 4.43      |
+|     Transformer (30 epochs)      |    0.99    | 1.22       | 3.37      |
+
+![image](https://user-images.githubusercontent.com/29897277/105708165-5fdc5200-5f57-11eb-803c-e76d4eff2923.png)
 
 ### BLEU Score Results
 
