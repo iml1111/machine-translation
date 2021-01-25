@@ -15,54 +15,54 @@ def define_argparser():
     p.add_argument(
         '--model_fn',
         required=True,
-        help='Model file name to use'
+        help='불러올 Model Filepath.'
     )
     p.add_argument(
         '--gpu_id',
         type=int,
         default=-1,
-        help='GPU ID to use. -1 for CPU. Default=%(default)s'
+        help='학습에 사용할 GPU ID를 입력해주세요. -1 for CPU. Default=%(default)s'
     )
     p.add_argument(
         '--batch_size',
         type=int,
         default=128,
-        help='Mini batch size for parallel inference. Default=%(default)s'
+        help='batch size. Default=%(default)s'
     )
     p.add_argument(
         '--max_length',
         type=int,
         default=255,
-        help='Maximum sequence length for inference. Default=%(default)s'
+        help='예측시, 한 문장의 최대 토큰 길이. Default=%(default)s'
     )
     p.add_argument(
         '--n_best',
         type=int,
         default=1,
-        help='Number of best inference result per sample. Default=%(default)s'
+        help='예측 결과중, 최대 N개까지 Best 예측 선정. Default=%(default)s'
     )
     p.add_argument(
         '--beam_size',
         type=int,
         default=1,
-        help='Beam size for beam search. Default=%(default)s'
+        help='Batch beam search size. Default=%(default)s'
     )
     p.add_argument(
         '--lang',
         type=str,
         default="enko",
-        help='Source language and target language. Example: enko'
+        help='예측할 언어의 쌍 (영어를 한국어로 번역할 경우, ex: en + ko --> enko)'
     )
     p.add_argument(
         '--length_penalty',
         type=float,
         default=1.2,
-        help='Length penalty parameter that higher value produce shorter results. Default=%(default)s',
+        help='예측 결과의 길이가 긴 만큼 패널티 부여. Default=%(default)s',
     )
     p.add_argument(
         '--use_transformer',
         action='store_true',
-        help='Set architecture as Transformer. if not True, use Seq2Seq.',
+        help='Transformer 모델 사용 여부, False일 경우, Seq2Seq.',
     )
 
     config = p.parse_args()

@@ -11,74 +11,67 @@ from modules.trainer import Trainer
 from modules.trainer import IgniteEngine
 
 
-def define_argparser(is_continue=False):
+def define_argparser():
     p = argparse.ArgumentParser()
-
-    if is_continue:
-        p.add_argument(
-            '--load_fn',
-            required=True,
-            help='Model file name to continue.'
-        )
 
     p.add_argument(
         '--model_fn',
         default='./models/model.pth',
-        help='Model file name to save. Additional information would be annotated to the file name.'
+        help='모델을 저장할 파일 이름을 입력해주세요.'
     )
     p.add_argument(
         '--train',
         default='./data/corpus.shuf.train.tok.bpe',
-        help='Training set file name except the extention. (ex: train.en --> train)'
+        help='Training set에 사용될 Filepath (뒤의 en,ko를 제외해야 합니다) (ex: train.en --> train)'
     )
     p.add_argument(
         '--valid',
         default='./data/corpus.shuf.valid.tok.bpe',
-        help='Validation set file name except the extention. (ex: valid.en --> valid)'
+        help='Validation set에 사용될 Filepath (ex: valid.en --> valid)'
     )
     p.add_argument(
         '--lang',
         default='enko',
-        help='Set of extention represents language pair. (ex: en + ko --> enko)'
+        help='학습시킬 언어의 쌍 (영어를 한국어로 번역할 경우, ex: en + ko --> enko)'
     )
     p.add_argument(
         '--gpu_id',
         type=int,
         default=0,
-        help='GPU ID to train. Currently, GPU parallel is not supported. -1 for CPU. Default=%(default)s'
+        help='학습에 사용할 GPU ID를 입력해주세요. -1 for CPU. Default=%(default)s'
     )
 
     p.add_argument(
         '--batch_size',
         type=int,
         default=128,
-        help='Mini batch size for gradient descent. Default=%(default)s'
+        help='batch size. Default=%(default)s'
     )
     p.add_argument(
         '--n_epochs',
         type=int,
         default=30,
-        help='Number of epochs to train. Default=%(default)s'
+        help='학습할 epochs 수. Default=%(default)s'
     )
     p.add_argument(
         '--verbose',
         type=int,
         default=2,
-        help='VERBOSE_SILENT, VERBOSE_EPOCH_WISE, VERBOSE_BATCH_WISE = 0, 1, 2. Default=%(default)s'
+        help='VERBOSE = 0, 1, 2. Default=%(default)s'
     )
     p.add_argument(
         '--init_epoch',
-        required=is_continue,
+        required=False,
         type=int,
         default=1,
-        help='Set initial epoch number, which can be useful in continue training. Default=%(default)s'
+        help='시작 epochs 값. Default=%(default)s'
     )
 
     p.add_argument(
         '--max_length',
         type=int,
         default=100,
-        help='Maximum length of the training sequence. Default=%(default)s'
+        help='학습시, 한 문장의 최대 토큰 길이. Default=%(default)s'
     )
     p.add_argument(
         '--dropout',
@@ -90,42 +83,42 @@ def define_argparser(is_continue=False):
         '--hidden_size',
         type=int,
         default=768,
-        help='Hidden size of ENC, DEC. Default=%(default)s'
+        help='Transformer ENC, DEC에 사용될 Hidden size. Default=%(default)s'
     )
     p.add_argument(
         '--n_layers',
         type=int,
         default=4,
-        help='Number of layers in ENC, DEC. Default=%(default)s'
+        help='ENC, DEC의 layers 수 Default=%(default)s'
     )
     p.add_argument(
         '--max_grad_norm',
         type=float,
         default=1e+8,
-        help='Threshold for gradient clipping. Default=%(default)s'
+        help='Gradient Clipping을 위한 max grad norm. Default=%(default)s'
     )
     p.add_argument(
         '--iteration_per_update',
         type=int,
         default=32,
-        help='Number of feed-forward iterations for one parameter update. Default=%(default)s'
+        help='Gradient Accumulation을 위한 파라미터 갱신 주기. Default=%(default)s'
     )
     p.add_argument(
         '--lr',
         type=float,
         default=1e-3,
-        help='Initial learning rate. Default=%(default)s',
+        help='learning rate. Default=%(default)s',
     )
     p.add_argument(
         '--n_splits',
         type=int,
         default=8,
-        help='Number of heads in multi-head attention in Transformer. Default=%(default)s',
+        help='multi-head attention의 Head 수. Default=%(default)s',
     )
     p.add_argument(
         '--off_autocast',
         action='store_true',
-        help='Turn-off Automatic Mixed Precision (AMP), which speed-up training.',
+        help='Automatic Mixed Precision Turn-off 여부',
     )
 
     config = p.parse_args()
