@@ -58,7 +58,6 @@ class DataLoader:
                 batch_size=batch_size,
                 device='cuda:%d' % device if device >= 0 else 'cpu',
                 shuffle=shuffle,
-                # 비슷한 길이끼리 미니 배치를 만들도록 정렬
                 sort_key=lambda x: len(x.tgt) + (max_length * len(x.src)),
                 sort_within_batch=True,
             )
@@ -67,7 +66,6 @@ class DataLoader:
                 batch_size=batch_size,
                 device='cuda:%d' % device if device >= 0 else 'cpu',
                 shuffle=False,
-                # 비슷한 길이끼리 미니 배치를 만들도록 정렬
                 sort_key=lambda x: len(x.tgt) + (max_length * len(x.src)),
                 sort_within_batch=True,
             )
@@ -83,18 +81,6 @@ class DataLoader:
 class TranslationDataset(data.Dataset):
 
     def __init__(self, path, exts, fields, max_length=None, **kwargs):
-        """Create a TranslationDataset given paths and fields.
-        
-        MAX LENGTH로 각 데이터를 자르기 위한 예외처리 오버라이딩
-        
-        Arguments:
-            path: Common prefix of paths to the data files for both languages.
-            exts: A tuple containing the extension to path for each language.
-            fields: A tuple containing the fields that will be used for data
-                in each language.
-            Remaining keyword arguments: Passed to the constructor of
-                data.Dataset.
-        """
         if not isinstance(fields[0], (tuple, list)):
             fields = [('src', fields[0]), ('trg', fields[1])]
 

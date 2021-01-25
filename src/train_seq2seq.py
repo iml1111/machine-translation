@@ -138,7 +138,6 @@ def get_model(input_size, output_size, config):
 
 
 def get_crit(output_size, pad_index):
-    # PAD 토큰에 대하여 가중치를 주지 않도록 설정
     loss_weight = torch.ones(output_size)
     loss_weight[pad_index] = 0.
     crit = nn.NLLLoss(

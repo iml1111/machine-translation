@@ -141,10 +141,6 @@ if __name__ == '__main__':
     sys.stdout = codecs.getwriter("utf-8")(sys.stdout.detach())
     config = define_argparser()
 
-    '''
-    이전에 학습했던 모델, 파라미터,
-    vocab 데이터까지 전부 저장해뒀다가 그대로 다시 씀
-    '''
     saved_data = torch.load(
         config.model_fn,
         map_location='cpu',
@@ -163,11 +159,6 @@ if __name__ == '__main__':
 
     with torch.no_grad():
         for lines in read_text(batch_size=config.batch_size):
-            '''
-            신경망 특성상, 문장을 긴순으로 정렬해서 텐서를 만들어야함
-            하지만 그경우, 입력 순서가 뒤틀릴 수 있으므로
-            original_indice를 기억해놨다가 다시 복구시켜야함
-            '''
             lengths = [len(line) for line in lines]
             original_indice = [i for i in range(len(lines))]
             sorted_tuples = sorted(
@@ -197,7 +188,6 @@ if __name__ == '__main__':
 
                 sys.stdout.write('\n'.join(output) + '\n')
             else:
-                # Take mini-batch parallelized beam search.
                 batch_indice, _ = model.batch_beam_search(
                     x,
                     beam_size=config.beam_size,
@@ -205,8 +195,6 @@ if __name__ == '__main__':
                     n_best=config.n_best,
                     length_penalty=config.length_penalty,
                 )
-
-                # Restore the original_indice.
                 output = []
                 for i in range(len(batch_indice)):
                     output += [to_text(batch_indice[i], loader.tgt.vocab)]

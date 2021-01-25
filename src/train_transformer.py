@@ -128,13 +128,13 @@ def define_argparser():
 
 def get_model(input_size, output_size, config):
     model = Transformer(
-            input_size, # Source vocabulary size
-            config.hidden_size, # Transformer doesn't need word_vec_size.
-            output_size, # Target vocabulary size
-            n_splits=config.n_splits, # Number of head in Multi-head Attention.
-            n_enc_blocks=config.n_layers,# Number of encoder blocks
-            n_dec_blocks=config.n_layers,# Number of decoder blocks
-            dropout_p=config.dropout, # Dropout rate on each block
+            input_size, 
+            config.hidden_size,
+            output_size,
+            n_splits=config.n_splits,
+            n_enc_blocks=config.n_layers,
+            n_dec_blocks=config.n_layers,
+            dropout_p=config.dropout,
         )
     return model
 
