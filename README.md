@@ -26,7 +26,7 @@ LSTM 및 Attention을 기반으로 한, **Seq2Seq Model**입니다.
 
 ### Hyperparameter Example
 
-```json
+```python
 {   
     'batch_size': 256,                             
     'dropout': 0.2,                               
@@ -150,7 +150,7 @@ optional arguments:
 
 ### Hyperparameter Example
 
-```json
+```python
 {   
     'batch_size': 256,                            
     'dropout': 0.2,                               
