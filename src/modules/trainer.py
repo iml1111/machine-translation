@@ -1,8 +1,8 @@
 import numpy as np
 import torch
 import torch.nn.utils as torch_utils
-# from torch.cuda.amp import autocast
-# from torch.cuda.amp import GradScaler
+from torch.cuda.amp import autocast
+from torch.cuda.amp import GradScaler
 from ignite.engine import Engine
 from ignite.engine import Events
 from ignite.metrics import RunningAverage
@@ -25,7 +25,7 @@ class IgniteEngine(Engine):
         super().__init__(func)
 
         self.best_loss = np.inf
-        #self.scaler = GradScaler()
+        self.scaler = GradScaler()
 
     @staticmethod
     def train(engine, mini_batch):
@@ -77,39 +77,38 @@ class IgniteEngine(Engine):
 
         #-------------------------#
         # autocast로 공간효율적으로 학습 실행
-        # with autocast(not engine.config.off_autocast):
-        # y_hat = (batch_size, length_m, output_size)
-        # 입력 tgt의 경우, 맨뒤에 EOS를 토큰을 제거
-        y_hat = engine.model(x, mini_batch.tgt[0][:, :-1])
+        with autocast(not engine.config.off_autocast):
+            # y_hat = (batch_size, length_m, output_size)
+            # 입력 tgt의 경우, 맨뒤에 EOS를 토큰을 제거
+            y_hat = engine.model(x, mini_batch.tgt[0][:, :-1])
 
-        '''
-        loss값 연산을 위해 다음과 같이 텐서 모양 정리
-        모든 문장의 각 단어를 순서대로 배치했다고 보면됨
-        변경 전(3D):
-            y_hat = (batch_size, length_m, output_size)
-            y = (batch_size, length_m)
-        변경 후(2D):
-            y_hat = (batch_size * length_m, output_size)
-            y = (batch_size * length_m)
-        '''
-        loss = engine.crit(
-            y_hat.contiguous().view(-1, y_hat.size(-1)),
-            y.contiguous().view(-1)
-        )
-        '''
-        div(y.size(0)): loss를 구한후, batch_size만큼 나눠준 후
-        div(engine.config.iteration_per_update): 
-        Gradient Accumulation을 위해 미리 나눠줌
-        즉, backward_target이 진짜 적용시킬 loss 값이라 보면 됨
-        '''
-        backward_target = loss.div(y.size(0)).div(engine.config.iteration_per_update)
-        #-------------------------#
+            '''
+            loss값 연산을 위해 다음과 같이 텐서 모양 정리
+            모든 문장의 각 단어를 순서대로 배치했다고 보면됨
+            변경 전(3D):
+                y_hat = (batch_size, length_m, output_size)
+                y = (batch_size, length_m)
+            변경 후(2D):
+                y_hat = (batch_size * length_m, output_size)
+                y = (batch_size * length_m)
+            '''
+            loss = engine.crit(
+                y_hat.contiguous().view(-1, y_hat.size(-1)),
+                y.contiguous().view(-1)
+            )
+            '''
+            div(y.size(0)): loss를 구한후, batch_size만큼 나눠준 후
+            div(engine.config.iteration_per_update): 
+            Gradient Accumulation을 위해 미리 나눠줌
+            즉, backward_target이 진짜 적용시킬 loss 값이라 보면 됨
+            '''
+            backward_target = loss.div(y.size(0)).div(engine.config.iteration_per_update)
 
         # autocast가 켜져 있는 경우, scale 작업 후에, backward
-        # if engine.config.gpu_id >= 0 and not engine.config.off_autocast:
-        #     engine.scaler.scale(backward_target).backward()
-        # else:
-        backward_target.backward()
+        if engine.config.gpu_id >= 0 and not engine.config.off_autocast:
+            engine.scaler.scale(backward_target).backward()
+        else:
+            backward_target.backward()
 
         # 현재 batch 내에 모든 토큰 수
         word_count = int(mini_batch.tgt[1].sum())
@@ -130,12 +129,12 @@ class IgniteEngine(Engine):
                 engine.config.max_grad_norm,
             )
 
-            # if engine.config.gpu_id >= 0 and not engine.config.off_autocast:
-            #     # GPU를 사용할 경우, 기존 optim.step() 대신에 scaler로 step 수행
-            #     engine.scaler.step(engine.optimizer)
-            #     engine.scaler.update()
-            # else:
-            engine.optimizer.step()
+            if engine.config.gpu_id >= 0 and not engine.config.off_autocast:
+                # GPU를 사용할 경우, 기존 optim.step() 대신에 scaler로 step 수행
+                engine.scaler.step(engine.optimizer)
+                engine.scaler.update()
+            else:
+                engine.optimizer.step()
 
         loss = float(loss / word_count)
         ppl = np.exp(loss)
@@ -160,12 +159,12 @@ class IgniteEngine(Engine):
             # y = (batch_size, length_m)
             x, y = mini_batch.src, mini_batch.tgt[0][:, 1:]
 
-            #with autocast(not engine.config.off_autocast):
-            y_hat = engine.model(x, mini_batch.tgt[0][:, :-1])
-            loss = engine.crit(
-                y_hat.contiguous().view(-1, y_hat.size(-1)),
-                y.contiguous().view(-1),
-            )
+            with autocast(not engine.config.off_autocast):
+                y_hat = engine.model(x, mini_batch.tgt[0][:, :-1])
+                loss = engine.crit(
+                    y_hat.contiguous().view(-1, y_hat.size(-1)),
+                    y.contiguous().view(-1),
+                )
 
         word_count = int(mini_batch.tgt[1].sum())
         loss = float(loss / word_count)

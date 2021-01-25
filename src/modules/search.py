@@ -1,8 +1,5 @@
 from operator import itemgetter
-
 import torch
-import torch.nn as nn
-
 import modules.data_loader as data_loader
 
 LENGTH_PENALTY = .2

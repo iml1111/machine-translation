@@ -5,7 +5,8 @@ from operator import itemgetter
 import torch
 from modules.data_loader import DataLoader
 import modules.data_loader as data_loader
-from modules.transformer import Transformer
+from modules.models.seq2seq import Seq2Seq
+from modules.models.transformer import Transformer
 
 
 def define_argparser():
@@ -22,7 +23,6 @@ def define_argparser():
         default=-1,
         help='GPU ID to use. -1 for CPU. Default=%(default)s'
     )
-
     p.add_argument(
         '--batch_size',
         type=int,
@@ -58,6 +58,11 @@ def define_argparser():
         type=float,
         default=1.2,
         help='Length penalty parameter that higher value produce shorter results. Default=%(default)s',
+    )
+    p.add_argument(
+        '--use_transformer',
+        action='store_true',
+        help='Set architecture as Transformer. if not True, use Seq2Seq.',
     )
 
     config = p.parse_args()
@@ -107,14 +112,24 @@ def get_vocabs(train_config, config, saved_data):
     return src_vocab, tgt_vocab
 
 
-def get_model(input_size, output_size, train_config):
-    model = Transformer(
+def get_model(input_size, output_size, train_config, config):
+    if config.use_transformer:
+        model = Transformer(
             input_size,
             train_config.hidden_size,
             output_size,
             n_splits=train_config.n_splits,
             n_enc_blocks=train_config.n_layers,
             n_dec_blocks=train_config.n_layers,
+            dropout_p=train_config.dropout,
+        )
+    else:
+        model = Seq2Seq(
+            input_size,
+            train_config.word_vec_size,
+            train_config.hidden_size,
+            output_size,
+            n_layers=train_config.n_layers,
             dropout_p=train_config.dropout,
         )
     model.load_state_dict(saved_data['model'])
@@ -142,7 +157,7 @@ if __name__ == '__main__':
     loader.load_vocab(src_vocab, tgt_vocab)
 
     input_size, output_size = len(loader.src.vocab), len(loader.tgt.vocab)
-    model = get_model(input_size, output_size, train_config)
+    model = get_model(input_size, output_size, train_config, config)
     if config.gpu_id >= 0:
         model.cuda(config.gpu_id)
 

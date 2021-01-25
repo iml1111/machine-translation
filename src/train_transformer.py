@@ -6,7 +6,7 @@ import torch.nn as nn
 
 from modules.data_loader import DataLoader
 import modules.data_loader as data_loader
-from modules.transformer import Transformer
+from modules.models.transformer import Transformer
 from modules.trainer import Trainer
 from modules.trainer import IgniteEngine
 
@@ -90,13 +90,13 @@ def define_argparser(is_continue=False):
         '--hidden_size',
         type=int,
         default=768,
-        help='Hidden size of LSTM. Default=%(default)s'
+        help='Hidden size of ENC, DEC. Default=%(default)s'
     )
     p.add_argument(
         '--n_layers',
         type=int,
         default=4,
-        help='Number of layers in LSTM. Default=%(default)s'
+        help='Number of layers in ENC, DEC. Default=%(default)s'
     )
     p.add_argument(
         '--max_grad_norm',
@@ -121,6 +121,11 @@ def define_argparser(is_continue=False):
         type=int,
         default=8,
         help='Number of heads in multi-head attention in Transformer. Default=%(default)s',
+    )
+    p.add_argument(
+        '--off_autocast',
+        action='store_true',
+        help='Turn-off Automatic Mixed Precision (AMP), which speed-up training.',
     )
 
     config = p.parse_args()
